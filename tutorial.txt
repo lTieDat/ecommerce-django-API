@@ -1,0 +1,10 @@
+access sqlite3: sqlite3 db.sqlite3
+run server: python manage.py runserver
+migrate:
+        python manage.py makemigrations
+        python manage.py migrate
+
+python -m django instead of django-admin
+
+
+        

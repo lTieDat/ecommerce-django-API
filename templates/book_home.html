@@ -5,54 +5,330 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
         }
 
-        .book-container {
-            max-width: 800px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .book-item {
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .book-item:last-child {
-            border-bottom: none;
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-icons i {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .header-icons i:hover {
+            color: #e74c3c;
+            background-color: #fff;
+        }
+
+        .book-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .book-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .book-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 2px solid #f1f1f1;
+        }
+
+        .book-details {
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .book-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .book-author {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .book-price {
+            font-size: 1.2rem;
             font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+
+        .book-stock {
+            font-size: 0.9rem;
+            color: #2ecc71;
+            font-weight: 500;
+        }
+
+        .cart-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 5px 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-to-cart {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            background-color: #2980b9;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 10px 0;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .control-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 1rem;
+        }
+
+        .cart-actions {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-to-cart {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .add-to-cart:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
 
 <body>
-    <div class="book-container">
-        <h2>Book List</h2>
+    <header>
+        <h1>Welcome to Our Bookstore</h1>
+        <div class="header-icons">
+            <i class="fas fa-home" title="Home"></i>
+            <i class="fas fa-user" title="User Info" onclick="handleUserInfo()"></i>
+            <i class="fas fa-shopping-cart" title="Cart" onclick="handleCartOpen()"></i>
+        </div>
+    </header>
+
+    <div id="book-container" class="book-container">
         {% for book in books %}
         <div class="book-item">
-            <span class="book-title">{{ book.title }}</span>
-            <span>by {{ book.author }}</span>
-            <span>${{ book.price }}</span>
-            <span>Stock: {{ book.stock }}</span>
+            <img src="{{ book.image }}" alt="{{ book.title }} Image">
+            <div class="book-details">
+                <span class="book-title">{{ book.title }}</span>
+                <span class="book-author">by {{ book.author }}</span>
+                <span class="book-price">${{ book.price }}</span>
+                <span class="book-stock">Stock: {{ book.stock }}</span>
+                <div class="cart-actions">
+                    <div class="quantity-controls">
+                        <button class="control-btn decrease-btn" data-book-id="{{ book.id }}">-</button>
+                        <input type="number" min="1" value="1" class="quantity-input" data-book-id="{{ book.id }}" />
+                        <button class="control-btn increase-btn" data-book-id="{{ book.id }}">+</button>
+                    </div>
+                    <button class="add-to-cart" data-book-id="{{ book.id }}">Add to Cart</button>
+                </div>
+            </div>
         </div>
         {% empty %}
-        <p>No books available.</p>
+        <p class="no-books">No books available.</p>
         {% endfor %}
     </div>
+
+    <script>
+        const handleCartOpen = () => {
+            window.location.href = '/api/cart/view_cart';
+        }
+
+        const handleUserInfo = () => {
+            window.location.href = '/api/customer/customer_home';
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            const bookContainer = document.getElementById("book-container");
+            const cart = JSON.parse(sessionStorage.getItem('cart')) || {};
+            console.log("Cart:", cart);
+
+            // Function to update the cart in sessionStorage
+            const updateCart = (id, quantity) => {
+                cart[id] = parseInt(quantity, 10);
+                sessionStorage.setItem('cart', JSON.stringify(cart));
+                console.log("Cart updated:", cart);
+            };
+
+            // Handle click events for quantity buttons
+            bookContainer.addEventListener("click", (event) => {
+                const target = event.target;
+
+                if (target.classList.contains("control-btn")) {
+                    const bookId = target.getAttribute("data-book-id");
+                    const input = document.querySelector(`.quantity-input[data-book-id="${bookId}"]`);
+                    let currentValue = parseInt(input.value, 10);
+
+                    if (target.classList.contains("decrease-btn")) {
+                        input.value = Math.max(1, currentValue - 1);
+                    } else if (target.classList.contains("increase-btn")) {
+                        input.value = currentValue + 1;
+                    }
+                } else if (target.classList.contains("add-to-cart")) {
+                    // Handle "Add to Cart" button click
+                    const bookId = target.getAttribute("data-book-id");
+                    const input = document.querySelector(`.quantity-input[data-book-id="${bookId}"]`);
+                    const quantity = input.value;
+
+                    updateCart(bookId, quantity);
+                    alert(`Book added to cart with quantity: ${quantity}`);
+                }
+            });
+
+            // Prevent input from going below 1 manually
+            bookContainer.addEventListener("input", (event) => {
+                if (event.target.classList.contains("quantity-input")) {
+                    const value = parseInt(event.target.value, 10);
+                    if (isNaN(value) || value < 1) {
+                        event.target.value = 1;
+                    }
+                }
+            });
+        });
+    </script>
 </body>
+
 
 </html>

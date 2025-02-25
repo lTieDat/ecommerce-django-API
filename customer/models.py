@@ -21,7 +21,7 @@ class Customer(AbstractUser):
     )
     user_permissions = models.ManyToManyField(
         "auth.Permission",
-        related_name="customer_users_permissions",  # Prevents conflict with auth.User.user_permissions
+        related_name="customer_users_permissions", 
         blank=True
     )
 

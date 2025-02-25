@@ -43,9 +43,11 @@ INSTALLED_APPS = [
     'book',
     'cart',
     'customer',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,29 +77,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'datlt_proj1.wsgi.application'
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3001",
+]
+
 
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce',
-        'USER': 'ad',    
-        'PASSWORD': '1',  
-        'HOST': 'localhost', 
-        'PORT': '5432',       
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -121,7 +106,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Require authentication by default
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
@@ -158,5 +143,45 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / "db.sqlite3",
-    }
+    },
+    'customer': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'customer_database',
+        'USER': 'root',    
+        'PASSWORD': '1',  
+        'HOST': 'localhost', 
+        'PORT': '3306',       
+    },
+    'shipment': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecommerce',
+        'USER': 'ad',    
+        'PASSWORD': '1',  
+        'HOST': 'localhost', 
+        'PORT': '5432',       
+    },
+    'payment': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecommerce',
+        'USER': 'ad',    
+        'PASSWORD': '1',  
+        'HOST': 'localhost', 
+        'PORT': '5432',       
+    },
+    'order': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecommerce',
+        'USER': 'ad',    
+        'PASSWORD': '1',  
+        'HOST': 'localhost', 
+        'PORT': '5432',       
+    },
+    'book': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'book_database',
+        'USER': 'root',
+        'PASSWORD': 'Datnan012@',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
 }

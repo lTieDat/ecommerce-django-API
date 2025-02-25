@@ -4,31 +4,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart List</title>
+    <title>Your Cart</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cart-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cart-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .cart-details {
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+
+        .cart-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .cart-author {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .cart-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin-top: 5px;
+        }
+
+        .cart-quantity {
+            font-size: 14px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .cart-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remove-item {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .remove-item:hover {
+            background-color: #c0392b;
+        }
+
+        .cart-total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        @media (max-width: 600px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cart-details {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .cart-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <h2>Cart Items</h2>
-    <table border="1">
-        <tr>
-            <th>Customer</th>
-            <th>Book</th>
-            <th>Quantity</th>
-            <th>Added At</th>
-        </tr>
-        {% for cart in carts %}
-        <tr>
-            <td>{{ cart.customer.first_name }} {{ cart.customer.last_name }}</td>
-            <td>{{ cart.book.title }}</td>
-            <td>{{ cart.quantity }}</td>
-            <td>{{ cart.added_at }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No items in cart.</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="cart-container">
+        <h1>Your Cart</h1>
+        <div id="cart-items"></div>
+        <div class="cart-total" id="cart-total">Total: $0</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const cartItemsContainer = document.getElementById("cart-items");
+            const cartTotalElement = document.getElementById("cart-total");
+            const cart = JSON.parse(sessionStorage.getItem("cart")) || {};
+            let total = 0;
+
+            // Fetch book details for each item in the cart
+            for (const bookId in cart) {
+                if (cart.hasOwnProperty(bookId)) {
+                    const quantity = cart[bookId];
+                    try {
+                        const response = await fetch(`http://127.0.0.1:8000/api/books/${bookId}`);
+                        const book = await response.json();
+
+                        // Add book data to the cart display
+                        const cartItem = document.createElement("div");
+                        cartItem.classList.add("cart-item");
+                        cartItem.innerHTML = `
+                            <img src="${book.image}" alt="${book.title}">
+                            <div class="cart-details">
+                                <span class="cart-title">${book.title}</span>
+                                <div class="cart-author">by ${book.author}</div>
+                                <div class="cart-price">$${book.price}</div>
+                                <div class="cart-quantity">Quantity: ${quantity}</div>
+                            </div>
+                            <div class="cart-actions">
+                                <button class="remove-item" data-book-id="${bookId}">Remove</button>
+                            </div>
+                        `;
+                        cartItemsContainer.appendChild(cartItem);
+
+                        // Update total
+                        total += book.price * quantity;
+                    } catch (error) {
+                        console.error(`Error fetching book data for ID ${bookId}:`, error);
+                    }
+                }
+            }
+
+            cartTotalElement.textContent = `Total: $${total.toFixed(2)}`;
+
+            cartItemsContainer.addEventListener("click", (event) => {
+                if (event.target.classList.contains("remove-item")) {
+                    const bookId = event.target.getAttribute("data-book-id");
+                    delete cart[bookId];
+                    sessionStorage.setItem("cart", JSON.stringify(cart));
+                    location.reload();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

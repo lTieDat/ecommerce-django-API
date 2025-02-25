@@ -16,16 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework_simplejwt import views as jwt_views
 
-from customer.views import DebugAuthView
+from customer.views import DebugAuthView, custom_login_page,customer_register_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/login/', jwt_views.TokenObtainPairView.as_view(), name='login'),
+    path('api/login/', custom_login_page, name='login'),
     path('api/', include('book.urls')),
     path('api/', include('customer.urls')),
     path('api/', include('cart.urls')),
     path('api/debug-auth/', DebugAuthView.as_view(), name='debug_auth'),
+    path('register/', customer_register_page, name='register'),
 ]

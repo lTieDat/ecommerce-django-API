@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,9 +9,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Customer
 from .serializers import CustomerSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.shortcuts import render
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class CustomerAPIView(APIView):
-    authentication_classes = [JWTAuthentication]  # ✅ Use JWT authentication
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
@@ -18,10 +24,10 @@ class CustomerAPIView(APIView):
             return [AllowAny()]
         return [IsAuthenticated()]
 
-    def get(self, request, customer_id=None):
+    def get(self, request, username=None):
         """Retrieve all customers or a specific customer by ID (Authentication Required)"""
-        if customer_id:
-            customer = get_object_or_404(Customer, id=customer_id)
+        if username:
+            customer = get_object_or_404(Customer, email=username)
             serializer = CustomerSerializer(customer)
             return Response(serializer.data)
         
@@ -71,3 +77,70 @@ class DebugAuthView(APIView):
     def get(self, request):
         auth_header = request.headers.get("Authorization", "No Auth Header Found")
         return Response({"Received Authorization Header": auth_header})
+
+@csrf_exempt
+def custom_login_page(request):
+    if request.method == 'POST':
+        # Parse the JSON body
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+            print(username)  
+            print(password) 
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Generate tokens for the authenticated user
+            refresh = RefreshToken.for_user(user)
+            tokens = str(refresh.access_token),    
+            customer = Customer.objects.get(email=username)
+            # serialize the customer object
+            customer = CustomerSerializer(customer).data
+            
+            response = JsonResponse({'message': 'Login successful' ,'tokens': tokens, 'user': customer})
+
+            return response
+        else:
+            # Return 401 Unauthorized for invalid credentials
+            return JsonResponse({'error': 'Invalid credentials'}, status=401)
+
+    # Render the login page for GET requests
+    else:
+        return render(request, 'login.html')
+
+@csrf_exempt
+def customer_register_page(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+
+        # Check if the email already exists
+        if Customer.objects.filter(email=email).exists():
+            return JsonResponse({
+                "error_message": "This email already exists!",
+                "error_code": 400
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create a new customer
+        new_customer = Customer.objects.create(
+            email=email,
+            password=make_password(password),
+            first_name=first_name,
+            last_name=last_name
+        )
+        new_customer.save()
+
+        return JsonResponse({
+            "message": "Register successful!"
+        }, status=status.HTTP_201_CREATED)
+
+    # Render the register page for GET requests
+    return render(request, 'register.html')

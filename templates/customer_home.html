@@ -4,29 +4,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer List</title>
+    <title>Profile - Customer List</title>
     <style>
+        /* Base styles for body */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
 
-        .customer-container {
-            max-width: 800px;
+        /* Profile container */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            max-width: 1200px;
+            margin: auto;
             background: white;
-            padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header h2 {
+            font-size: 32px;
+            color: #4b6c8d;
+        }
+
+        /* User info styles */
+        .user-info {
+            background: #f9fafb;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info h3 {
+            margin-bottom: 20px;
+            color: #4b6c8d;
+        }
+
+        .user-info .user-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-info .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info .label {
+            font-weight: 600;
+            color: #4b6c8d;
+        }
+
+        .user-info .value {
+            font-weight: 400;
+            color: #555;
+        }
+
+        /* Avatar styling */
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            margin: auto;
+        }
+
+        /* Customer list section */
+        .customer-list {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 40px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .customer-list h3 {
+            background-color: #4b6c8d;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
         }
 
         .customer-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
         }
 
         .customer-item:last-child {
@@ -36,23 +124,117 @@
         .customer-name {
             font-weight: bold;
         }
+
+        .no-customers {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #999;
+        }
     </style>
 </head>
 
 <body>
-    <div class="customer-container">
-        <h2>Customer List</h2>
-        {% for customer in customers %}
-        <div class="customer-item">
-            <span class="customer-name">{{ customer.first_name }} {{ customer.last_name }}</span>
-            <span>Email: {{ customer.email }}</span>
-            <span>Phone: {{ customer.phone|default:"N/A" }}</span>
-            <span>Joined: {{ customer.created_at|date:"Y-m-d" }}</span>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h2>Welcome to Your Profile</h2>
         </div>
-        {% empty %}
-        <p>No customers found.</p>
-        {% endfor %}
+
+        <!-- Display user information -->
+        <div id="user-info" class="user-info">
+            <h3>Your Information</h3>
+            <!-- Avatar Section -->
+            <div id="user-avatar" class="avatar"></div>
+            <div class="user-item">
+                <span class="label">Name:</span>
+                <span id="user-name" class="value"></span>
+            </div>
+            <div class="user-item">
+                <span class="label">Email:</span>
+                <span id="user-email" class="value"></span>
+            </div>
+            <div class="user-item">
+                <span class="label">Phone:</span>
+                <span id="user-phone" class="value"></span>
+            </div>
+        </div>
+
+        <!-- Cart history section -->
+        <div id="cart-history" class="customer-list">
+            <h3>Your Cart History</h3>
+            <!-- Cart history items will be rendered here -->
+            <div id="cart-list"></div>
+        </div>
     </div>
+
+    <script>
+        // Helper function to get the logged-in user from localStorage
+        const getUserFromLocalStorage = () => {
+            const username = localStorage.getItem('user');
+            return username ? JSON.parse(username) : null;
+        };
+
+        // Check if user is logged in
+        const user = getUserFromLocalStorage();
+        if (!user) {
+            // Redirect to login page if user is not logged in
+            window.location.href = '/api/login';
+        } else {
+            // Render user information if logged in
+            document.getElementById('user-name').textContent = `${user.first_name} ${user.last_name}`;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-phone').textContent = user.phone || 'N/A';
+
+            // Avatar: Display user's avatar or default if not available
+            const avatarElement = document.getElementById('user-avatar');
+            if (user.avatar) {
+                avatarElement.style.backgroundImage = `url('${user.avatar}')`;
+                avatarElement.style.backgroundSize = 'cover';
+                avatarElement.style.backgroundPosition = 'center';
+            } else {
+                // Display default initials if no avatar
+                avatarElement.textContent = `${user.first_name[0]}${user.last_name[0]}`;
+            }
+
+            // Fetch cart history data for the logged-in user
+            const token = localStorage.getItem('token'); // Get the token from localStorage
+            if (token) {
+                fetch(`http://127.0.0.1:8000/api/cart/${user.email}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const cartListElement = document.getElementById('cart-list');
+                        if (data && data.cartHistory && data.cartHistory.length > 0) {
+                            data.cartHistory.forEach(item => {
+                                const cartItemElement = document.createElement('div');
+                                cartItemElement.classList.add('customer-item');
+                                cartItemElement.innerHTML = `
+                                <span class="customer-name">${item.product_name}</span>
+                                <span class="customer-name">${item.quantity}</span>
+                                <span class="customer-name">${item.price}</span>
+                            `;
+                                cartListElement.appendChild(cartItemElement);
+                            });
+                        } else {
+                            cartListElement.innerHTML = '<p>No cart history available.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching cart history:', error);
+                        document.getElementById('cart-list').innerHTML = '<p>Failed to load cart history.</p>';
+                    });
+            } else {
+                console.error('Token not found in localStorage');
+            }
+        }
+    </script>
+
 </body>
 
 </html>

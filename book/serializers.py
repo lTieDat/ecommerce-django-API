@@ -4,8 +4,10 @@ from .models import Book
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ["title", "author", "price", "stock"]
+        fields = '__all__'
         extra_kwargs = {
             "stock": {"read_only": True},
+            "created_at": {"read_only": True},
+            "image": {"required": False}
         }
 
